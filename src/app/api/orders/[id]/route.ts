@@ -7,11 +7,15 @@ const isDemoMode = supabaseUrl.includes('demo-project') || serviceRoleKey === 'd
 
 const supabase = isDemoMode ? null : createClient(supabaseUrl, serviceRoleKey)
 
-// Demo order data
+// Demo order data with updated ZAR pricing and discounts
 const demoOrder = {
   id: 'CD-2024-001',
   status: 'confirmed',
-  total: 2849.97,
+  total: 2199.97,
+  subtotal: 2199.97,
+  originalTotal: 2849.97,
+  totalSavings: 650.00,
+  currency: 'ZAR',
   created_at: new Date().toISOString(),
   delivery_address: {
     street: '45 Nelson Mandela Square',
@@ -26,21 +30,33 @@ const demoOrder = {
       name: 'Classic White T-Shirt',
       quantity: 2,
       size: 'M',
-      price: 549.99,
-      total: 1099.98
+      price: 449.99,
+      originalPrice: 599.99,
+      discount: 25,
+      onSale: true,
+      saleTag: 'SUMMER SALE',
+      total: 899.98,
+      originalTotal: 1199.98,
+      savings: 300.00
     },
     {
       id: 2,
       name: 'Vintage Denim Jacket',
       quantity: 1,
       size: 'L',
-      price: 1649.99,
-      total: 1649.99
+      price: 1299.99,
+      originalPrice: 1649.99,
+      discount: 21,
+      onSale: true,
+      saleTag: 'LIMITED OFFER',
+      total: 1299.99,
+      originalTotal: 1649.99,
+      savings: 350.00
     }
   ],
   customer: {
-    name: 'Demo Customer',
-    email: 'demo@clothingdrop.co.za',
+    name: 'Thabo Mthembu',
+    email: 'thabo.mthembu@clothingdrop.co.za',
     phone: '+27 (11) 784-5623'
   }
 }

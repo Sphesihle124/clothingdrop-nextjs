@@ -6,10 +6,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatPrice(price: number): string {
-  return new Intl.NumberFormat('en-ZA', {
-    style: 'currency',
-    currency: 'ZAR',
-  }).format(price)
+  // Format as R1,234.56 (South African Rand format)
+  return `R${price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
 }
 
 export function formatDate(date: string | Date): string {

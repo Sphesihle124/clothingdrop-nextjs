@@ -3,10 +3,16 @@ export interface Product {
   name: string
   description?: string
   price: number
+  originalPrice?: number
+  discount?: number
+  onSale?: boolean
+  currency?: string
+  saleTag?: string
   image: string
   category: string
   sizes: string[]
   inStock: boolean
+  featured?: boolean
   createdAt?: string
   updatedAt?: string
 }

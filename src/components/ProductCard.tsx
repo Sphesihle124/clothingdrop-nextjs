@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { ShoppingCart, Heart } from 'lucide-react'
 import { Product } from '@/types'
 import { formatPrice } from '@/lib/utils'
+import { getPriceDisplay, getSaleBadge } from '@/lib/priceUtils'
 
 interface ProductCardProps {
   product: Product
@@ -10,15 +11,27 @@ interface ProductCardProps {
   isFavorite?: boolean
 }
 
-export default function ProductCard({ 
-  product, 
-  onAddToCart, 
-  onToggleFavorite, 
-  isFavorite = false 
+export default function ProductCard({
+  product,
+  onAddToCart,
+  onToggleFavorite,
+  isFavorite = false
 }: ProductCardProps) {
+  const priceDisplay = getPriceDisplay(product)
+  const saleBadge = getSaleBadge(product)
+
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
       <div className="relative h-64 overflow-hidden">
+        {/* Sale Badge */}
+        {saleBadge && (
+          <div className="absolute top-3 left-3 z-10">
+            <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+              {saleBadge}
+            </span>
+          </div>
+        )}
+
         <Image
           src={product.image}
           alt={product.name}
@@ -30,8 +43,8 @@ export default function ProductCard({
             onClick={() => onToggleFavorite(product.id)}
             className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
           >
-            <Heart 
-              className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} 
+            <Heart
+              className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
             />
           </button>
         )}
@@ -56,11 +69,26 @@ export default function ProductCard({
           </p>
         )}
         
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-2xl font-bold text-primary-600">
-            {formatPrice(product.price)}
-          </p>
-          <div className="flex gap-1">
+        {/* Price Section */}
+        <div className="mb-4">
+          <div className="flex items-center space-x-2 mb-1">
+            <p className="text-2xl font-bold text-primary-600">
+              {priceDisplay.currentPrice}
+            </p>
+            {priceDisplay.originalPrice && (
+              <p className="text-lg text-gray-500 line-through">
+                {priceDisplay.originalPrice}
+              </p>
+            )}
+          </div>
+
+          {priceDisplay.onSale && priceDisplay.savings && (
+            <div className="text-sm text-green-600 font-medium">
+              Save {priceDisplay.savings} ({priceDisplay.discount}% off)
+            </div>
+          )}
+
+          <div className="flex gap-1 mt-2">
             {product.sizes.slice(0, 3).map(size => (
               <span key={size} className="px-2 py-1 bg-gray-100 text-xs rounded">
                 {size}

@@ -7,73 +7,97 @@ const isDemoMode = supabaseUrl.includes('demo-project') || serviceRoleKey === 'd
 
 const supabase = isDemoMode ? null : createClient(supabaseUrl, serviceRoleKey)
 
-// Demo products data for development
+// Demo products data for development - ZAR pricing with discounts
 const demoProducts = [
   {
     id: 1,
     name: 'Classic White T-Shirt',
     description: 'Premium cotton t-shirt with a comfortable fit. Perfect for casual wear or layering.',
-    price: 549.99,
+    price: 449.99,
+    originalPrice: 599.99,
+    discount: 25,
+    onSale: true,
+    currency: 'ZAR',
     image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop',
     category: 'T-Shirts',
     sizes: ['S', 'M', 'L', 'XL'],
     in_stock: true,
-    featured: true
+    featured: true,
+    saleTag: 'SUMMER SALE'
   },
   {
     id: 2,
     name: 'Vintage Denim Jacket',
     description: 'Timeless denim jacket with a vintage wash. A wardrobe essential that never goes out of style.',
-    price: 1649.99,
+    price: 1299.99,
+    originalPrice: 1649.99,
+    discount: 21,
+    onSale: true,
+    currency: 'ZAR',
     image: 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&h=400&fit=crop',
     category: 'Jackets',
     sizes: ['S', 'M', 'L', 'XL'],
     in_stock: true,
-    featured: true
+    featured: true,
+    saleTag: 'LIMITED OFFER'
   },
   {
     id: 3,
     name: 'Slim Fit Black Jeans',
     description: 'Modern slim-fit jeans in classic black. Comfortable stretch denim for all-day wear.',
-    price: 1449.99,
+    price: 1199.99,
+    currency: 'ZAR',
     image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=400&fit=crop',
     category: 'Jeans',
     sizes: ['28', '30', '32', '34', '36'],
     in_stock: true,
-    featured: false
+    featured: false,
+    onSale: false
   },
   {
     id: 4,
     name: 'Floral Summer Dress',
     description: 'Light and airy summer dress with beautiful floral print. Perfect for warm weather.',
-    price: 1099.99,
+    price: 799.99,
+    originalPrice: 1099.99,
+    discount: 27,
+    onSale: true,
+    currency: 'ZAR',
     image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=400&fit=crop',
     category: 'Dresses',
     sizes: ['XS', 'S', 'M', 'L'],
     in_stock: true,
-    featured: true
+    featured: true,
+    saleTag: 'SUMMER SPECIAL'
   },
   {
     id: 5,
     name: 'Cozy Pullover Hoodie',
     description: 'Soft and comfortable hoodie made from premium cotton blend. Great for lounging or casual outings.',
-    price: 899.99,
+    price: 749.99,
+    currency: 'ZAR',
     image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&h=400&fit=crop',
     category: 'Hoodies',
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
     in_stock: true,
-    featured: false
+    featured: false,
+    onSale: false
   },
   {
     id: 6,
     name: 'Running Sneakers',
     description: 'Lightweight running shoes with excellent cushioning and support. Perfect for workouts or casual wear.',
-    price: 2399.99,
+    price: 1899.99,
+    originalPrice: 2399.99,
+    discount: 21,
+    onSale: true,
+    currency: 'ZAR',
     image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop',
     category: 'Shoes',
     sizes: ['7', '8', '9', '10', '11', '12'],
     in_stock: true,
-    featured: true
+    featured: true,
+    saleTag: 'BEST SELLER'
   }
 ]
 
