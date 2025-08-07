@@ -8,6 +8,7 @@ import {
   useElements
 } from '@stripe/react-stripe-js'
 import { useAuth } from '@/contexts/AuthContext'
+import { formatPrice } from '@/lib/utils'
 
 interface CheckoutFormProps {
   clientSecret: string
@@ -114,7 +115,7 @@ export default function CheckoutForm({ clientSecret, orderTotal, cartItems }: Ch
           disabled={isLoading || !stripe || !elements}
           className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {isLoading ? 'Processing...' : `Pay $${orderTotal.toFixed(2)}`}
+          {isLoading ? 'Processing...' : `Pay ${formatPrice(orderTotal)}`}
         </button>
       </div>
 

@@ -12,17 +12,29 @@ export interface ProductPrice {
 /**
  * Format price in South African Rand
  */
-export function formatPrice(amount: number, currency: string = 'ZAR'): string {
-  if (currency === 'ZAR') {
-    return `R${amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
+export function formatPrice(amount: number | undefined | null, currency: string = 'ZAR'): string {
+  // Handle undefined, null, or invalid amount values
+  if (amount === undefined || amount === null || isNaN(amount)) {
+    return currency === 'ZAR' ? 'R0.00' : '0.00'
   }
-  
+
+  // Ensure amount is a number
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount
+
+  if (isNaN(numAmount)) {
+    return currency === 'ZAR' ? 'R0.00' : '0.00'
+  }
+
+  if (currency === 'ZAR') {
+    return `R${numAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
+  }
+
   // Fallback for other currencies
   return new Intl.NumberFormat('en-ZA', {
     style: 'currency',
     currency: currency,
     minimumFractionDigits: 2,
-  }).format(amount)
+  }).format(numAmount)
 }
 
 /**

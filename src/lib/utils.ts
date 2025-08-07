@@ -5,9 +5,21 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatPrice(price: number): string {
+export function formatPrice(price: number | undefined | null): string {
+  // Handle undefined, null, or invalid price values
+  if (price === undefined || price === null || isNaN(price)) {
+    return 'R0.00'
+  }
+
+  // Ensure price is a number
+  const numPrice = typeof price === 'string' ? parseFloat(price) : price
+
+  if (isNaN(numPrice)) {
+    return 'R0.00'
+  }
+
   // Format as R1,234.56 (South African Rand format)
-  return `R${price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
+  return `R${numPrice.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`
 }
 
 export function formatDate(date: string | Date): string {

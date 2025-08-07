@@ -4,65 +4,71 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ShoppingBag, Filter, Search, ShoppingCart } from 'lucide-react'
+import { formatPrice } from '@/lib/utils'
+import { useCart } from '@/contexts/CartContext'
+import SizeSelectionModal from '@/components/SizeSelectionModal'
 
-// Mock product data (prices in South African Rand)
+// South African Traditional Clothing (prices in South African Rand)
 const products = [
   {
     id: 1,
-    name: "Classic White T-Shirt",
-    price: 549.99,
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop",
-    category: "T-Shirts",
-    sizes: ["S", "M", "L", "XL"]
-  },
-  {
-    id: 2,
-    name: "Denim Jacket",
-    price: 1649.99,
-    image: "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&h=400&fit=crop",
-    category: "Jackets",
-    sizes: ["S", "M", "L", "XL"]
-  },
-  {
-    id: 3,
-    name: "Black Jeans",
-    price: 1449.99,
-    image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=400&fit=crop",
-    category: "Jeans",
-    sizes: ["28", "30", "32", "34", "36"]
-  },
-  {
-    id: 4,
-    name: "Summer Dress",
-    price: 1099.99,
-    image: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=400&fit=crop",
-    category: "Dresses",
-    sizes: ["XS", "S", "M", "L"]
-  },
-  {
-    id: 5,
-    name: "Hoodie",
+    name: "Traditional Shweshwe Dress",
     price: 899.99,
-    image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&h=400&fit=crop",
-    category: "Hoodies",
+    image: "https://picsum.photos/400/400?random=1",
+    category: "Traditional Dresses",
     sizes: ["S", "M", "L", "XL", "XXL"]
   },
   {
+    id: 2,
+    name: "Ndebele Beaded Necklace",
+    price: 649.99,
+    image: "https://picsum.photos/400/400?random=2",
+    category: "Accessories",
+    sizes: ["One Size"]
+  },
+  {
+    id: 3,
+    name: "Xhosa Traditional Shirt",
+    price: 1299.99,
+    image: "https://picsum.photos/400/400?random=3",
+    category: "Traditional Shirts",
+    sizes: ["S", "M", "L", "XL", "XXL"]
+  },
+  {
+    id: 4,
+    name: "Zulu Isicholo Hat",
+    price: 1599.99,
+    image: "https://picsum.photos/400/400?random=4",
+    category: "Traditional Headwear",
+    sizes: ["One Size"]
+  },
+  {
+    id: 5,
+    name: "Sotho Traditional Blanket",
+    price: 2299.99,
+    image: "https://picsum.photos/400/400?random=5",
+    category: "Traditional Blankets",
+    sizes: ["Standard"]
+  },
+  {
     id: 6,
-    name: "Sneakers",
-    price: 2399.99,
-    image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=400&fit=crop",
-    category: "Shoes",
-    sizes: ["7", "8", "9", "10", "11", "12"]
+    name: "Venda Traditional Sandals",
+    price: 799.99,
+    image: "https://picsum.photos/400/400?random=6",
+    category: "Traditional Footwear",
+    sizes: ["5", "6", "7", "8", "9", "10", "11"]
   }
 ]
 
-const categories = ["All", "T-Shirts", "Jackets", "Jeans", "Dresses", "Hoodies", "Shoes"]
+const categories = ["All", "Traditional Dresses", "Accessories", "Traditional Shirts", "Traditional Headwear", "Traditional Blankets", "Traditional Footwear"]
 
 export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [searchTerm, setSearchTerm] = useState("")
-  const [cart, setCart] = useState<any[]>([])
+  const [selectedProduct, setSelectedProduct] = useState<any>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const { addToCart } = useCart()
 
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === "All" || product.category === selectedCategory
@@ -70,8 +76,15 @@ export default function ProductsPage() {
     return matchesCategory && matchesSearch
   })
 
-  const addToCart = (product: any) => {
-    setCart([...cart, { ...product, quantity: 1 }])
+  const handleAddToCart = (product: any) => {
+    setSelectedProduct(product)
+    setIsModalOpen(true)
+  }
+
+  const handleSizeSelected = (product: any, size: string) => {
+    addToCart(product, size, true) // true = navigate to cart
+    setIsModalOpen(false)
+    setSelectedProduct(null)
   }
 
   return (
@@ -125,7 +138,7 @@ export default function ProductsPage() {
             <div className="p-4">
               <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
               <p className="text-gray-600 mb-2">{product.category}</p>
-              <p className="text-2xl font-bold text-primary-600 mb-4">${product.price}</p>
+              <p className="text-2xl font-bold text-primary-600 mb-4">{formatPrice(product.price)}</p>
               <div className="flex justify-between items-center">
                 <div className="flex gap-1">
                   {product.sizes.slice(0, 3).map(size => (
@@ -140,7 +153,7 @@ export default function ProductsPage() {
                   )}
                 </div>
                 <button
-                  onClick={() => addToCart(product)}
+                  onClick={() => handleAddToCart(product)}
                   className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
                 >
                   Add to Cart
@@ -156,6 +169,14 @@ export default function ProductsPage() {
           <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
         </div>
       )}
+
+      {/* Size Selection Modal */}
+      <SizeSelectionModal
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAddToCart={handleSizeSelected}
+      />
     </div>
   )
 }

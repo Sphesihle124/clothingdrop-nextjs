@@ -3,16 +3,16 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { ShoppingBag, ShoppingCart, User, Menu, X, Search, LogOut } from 'lucide-react'
+import { useCart } from '@/contexts/CartContext'
 // import { useAuth } from '@/contexts/AuthContext'
 
-interface HeaderProps {
-  cartItemCount?: number
-}
-
-export default function Header({ cartItemCount = 0 }: HeaderProps) {
+export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { getCartItemCount } = useCart()
   // const { user, signOut } = useAuth()
   const user = null // Temporary: disable auth for initial setup
+
+  const cartItemCount = getCartItemCount()
 
   const handleSignOut = async () => {
     // await signOut()

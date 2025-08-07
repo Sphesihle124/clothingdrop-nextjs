@@ -1,8 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { ShoppingBag, Search, Package, Truck, CheckCircle, Clock } from 'lucide-react'
+import { ShoppingBag, Search, Package, Truck, CheckCircle, Clock, MapPin, Phone } from 'lucide-react'
+import { formatPrice } from '@/lib/utils'
+import { useOrders } from '@/contexts/OrderContext'
 
 // Mock order data
 const mockOrder = {
@@ -29,15 +32,54 @@ const mockOrder = {
 export default function TrackOrderPage() {
   const [orderNumber, setOrderNumber] = useState("")
   const [showOrder, setShowOrder] = useState(false)
+  const [currentOrder, setCurrentOrder] = useState(null)
 
-  const handleSearch = async () => {
-    if (orderNumber.trim()) {
+  const searchParams = useSearchParams()
+  const { getOrder, getLatestOrder } = useOrders()
+
+  // Check for order parameter in URL or load latest order
+  useEffect(() => {
+    const orderParam = searchParams.get('order')
+    if (orderParam) {
+      setOrderNumber(orderParam)
+      const order = getOrder(orderParam)
+      if (order) {
+        setCurrentOrder(order)
+        setShowOrder(true)
+      } else {
+        // Try API for legacy orders
+        handleSearch(orderParam)
+      }
+    } else {
+      // Try to load the latest order
+      const latestOrder = getLatestOrder()
+      if (latestOrder) {
+        setOrderNumber(latestOrder.orderNumber)
+        setCurrentOrder(latestOrder)
+        setShowOrder(true)
+      }
+    }
+  }, [searchParams.get('order')])
+
+  const handleSearch = async (searchOrderNumber?: string) => {
+    const orderToSearch = searchOrderNumber || orderNumber.trim()
+    if (orderToSearch) {
       setShowOrder(false)
+
+      // First check local orders
+      const localOrder = getOrder(orderToSearch)
+      if (localOrder) {
+        setCurrentOrder(localOrder)
+        setShowOrder(true)
+        return
+      }
+
+      // If not found locally, try API for legacy orders
       try {
-        const response = await fetch(`/api/tracking/${orderNumber}`)
+        const response = await fetch(`/api/tracking/${orderToSearch}`)
         if (response.ok) {
           const data = await response.json()
-          // Update mockOrder with real data if available
+          setCurrentOrder(data.order)
           setShowOrder(true)
         } else {
           setShowOrder(true) // Show mock data for demo
@@ -91,21 +133,26 @@ export default function TrackOrderPage() {
         </div>
 
         {/* Order Details */}
-        {showOrder && (
+        {showOrder && (currentOrder || mockOrder) && (
           <div className="space-y-6">
             {/* Order Status Card */}
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-xl font-bold">Order #{mockOrder.id}</h3>
-                  <p className="text-gray-600">Total: ${mockOrder.total}</p>
+                  <h3 className="text-xl font-bold">Order #{currentOrder?.orderNumber || mockOrder.id}</h3>
+                  <p className="text-gray-600">Total: {formatPrice(currentOrder?.total || mockOrder.total)}</p>
                 </div>
                 <div className="text-right">
                   <div className="flex items-center space-x-2 text-primary-600">
                     <Truck className="h-5 w-5" />
-                    <span className="font-semibold">Out for Delivery</span>
+                    <span className="font-semibold capitalize">
+                      {currentOrder?.status === 'in_transit' ? 'Out for Delivery' :
+                       currentOrder?.status === 'preparing' ? 'Preparing Order' :
+                       currentOrder?.status === 'confirmed' ? 'Order Confirmed' :
+                       currentOrder?.status === 'delivered' ? 'Delivered' : 'Out for Delivery'}
+                    </span>
                   </div>
-                  <p className="text-sm text-gray-600">ETA: {mockOrder.estimatedDelivery}</p>
+                  <p className="text-sm text-gray-600">ETA: {currentOrder?.estimatedDelivery || mockOrder.estimatedDelivery}</p>
                 </div>
               </div>
 
@@ -130,7 +177,7 @@ export default function TrackOrderPage() {
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="text-xl font-bold mb-6">Order Timeline</h3>
               <div className="space-y-4">
-                {mockOrder.timeline.map((step, index) => (
+                {(currentOrder?.timeline || mockOrder.timeline).map((step, index) => (
                   <div key={index} className="flex items-center space-x-4">
                     {getStatusIcon(step.status, step.completed, step.current || false)}
                     <div className="flex-1">
@@ -148,16 +195,42 @@ export default function TrackOrderPage() {
             <div className="bg-white rounded-lg p-6 shadow-sm">
               <h3 className="text-xl font-bold mb-4">Order Items</h3>
               <div className="space-y-3">
-                {mockOrder.items.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center">
-                    <div>
+                {(currentOrder?.items || mockOrder.items).map((item, index) => (
+                  <div key={index} className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
+                    <div className="flex-1">
                       <p className="font-medium">{item.name}</p>
                       <p className="text-sm text-gray-600">Size: {item.size}</p>
+                      {item.category && (
+                        <p className="text-xs text-gray-500">{item.category}</p>
+                      )}
                     </div>
-                    <p className="text-gray-600">Qty: {item.quantity}</p>
+                    <div className="text-right">
+                      <p className="text-gray-600">Qty: {item.quantity}</p>
+                      {item.price && (
+                        <p className="text-sm font-medium">{formatPrice(item.price)}</p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
+
+              {/* Order Summary */}
+              {currentOrder && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="flex justify-between text-sm">
+                    <span>Subtotal:</span>
+                    <span>{formatPrice(currentOrder.subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Delivery Fee:</span>
+                    <span>{formatPrice(currentOrder.deliveryFee)}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-lg mt-2 pt-2 border-t border-gray-200">
+                    <span>Total:</span>
+                    <span>{formatPrice(currentOrder.total)}</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Contact Support */}

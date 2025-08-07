@@ -8,17 +8,17 @@ export default function Home() {
       {/* Hero Section */}
       <section className="text-center mb-16">
         <h2 className="text-5xl font-bold text-gray-900 mb-6">
-          Fashion Delivered in <span className="text-primary-600">Minutes</span>
+          Traditional Heritage Delivered in <span className="text-primary-600">Minutes</span>
         </h2>
         <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          Get the latest clothing trends delivered to your doorstep with our ultra-fast delivery service. 
-          From casual wear to formal attire, we've got you covered.
+          Discover authentic South African traditional clothing delivered to your doorstep with our ultra-fast delivery service.
+          From Shweshwe dresses to Ndebele accessories, celebrate your heritage in style.
         </p>
-        <Link 
-          href="/products" 
+        <Link
+          href="/products"
           className="bg-primary-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-primary-700 transition-colors"
         >
-          Start Shopping
+          Explore Heritage Collection
         </Link>
       </section>
 
@@ -43,13 +43,13 @@ export default function Home() {
 
       {/* CTA Section */}
       <section className="bg-primary-600 text-white rounded-2xl p-8 text-center">
-        <h3 className="text-3xl font-bold mb-4">Ready to upgrade your wardrobe?</h3>
-        <p className="text-xl mb-6">Join thousands of satisfied customers who trust ClothingDrop</p>
-        <Link 
-          href="/products" 
+        <h3 className="text-3xl font-bold mb-4">Ready to celebrate your heritage?</h3>
+        <p className="text-xl mb-6">Join thousands of proud South Africans who trust ClothingDrop for authentic traditional wear</p>
+        <Link
+          href="/products"
           className="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
         >
-          Browse Collection
+          Browse Heritage Collection
         </Link>
       </section>
     </div>

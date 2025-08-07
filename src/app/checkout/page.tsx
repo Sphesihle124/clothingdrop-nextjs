@@ -6,6 +6,7 @@ import { Elements } from '@stripe/react-stripe-js'
 import { stripePromise } from '@/lib/stripe'
 import CheckoutForm from '@/components/CheckoutForm'
 import { useAuth } from '@/contexts/AuthContext'
+import { formatPrice } from '@/lib/utils'
 import { ArrowLeft, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 
@@ -134,7 +135,7 @@ export default function CheckoutPage() {
                   <h3 className="font-medium">{item.name}</h3>
                   <p className="text-sm text-gray-600">Size: {item.size} • Qty: {item.quantity}</p>
                 </div>
-                <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+                <p className="font-medium">{formatPrice(item.price * item.quantity)}</p>
               </div>
             ))}
           </div>
@@ -142,15 +143,15 @@ export default function CheckoutPage() {
           <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>{formatPrice(subtotal)}</span>
             </div>
             <div className="flex justify-between">
               <span>Delivery Fee</span>
-              <span>${deliveryFee.toFixed(2)}</span>
+              <span>{formatPrice(deliveryFee)}</span>
             </div>
             <div className="flex justify-between font-bold text-lg border-t pt-2">
               <span>Total</span>
-              <span>${total.toFixed(2)}</span>
+              <span>{formatPrice(total)}</span>
             </div>
           </div>
 
