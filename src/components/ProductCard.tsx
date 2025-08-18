@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import Image from 'next/image'
-import { ShoppingCart, Heart } from 'lucide-react'
+import { ShoppingCart, Heart, Expand } from 'lucide-react'
 import { Product } from '@/types'
 import { formatPrice } from '@/lib/utils'
 import { getPriceDisplay, getSaleBadge } from '@/lib/priceUtils'
+import ProductImageModal from './ProductImageModal'
 
 interface ProductCardProps {
   product: Product
@@ -17,45 +19,64 @@ export default function ProductCard({
   onToggleFavorite,
   isFavorite = false
 }: ProductCardProps) {
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const priceDisplay = getPriceDisplay(product)
   const saleBadge = getSaleBadge(product)
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
-      <div className="relative h-64 overflow-hidden">
-        {/* Sale Badge */}
-        {saleBadge && (
-          <div className="absolute top-3 left-3 z-10">
-            <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-              {saleBadge}
-            </span>
-          </div>
-        )}
+    <>
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow group">
+        <div className="relative h-64 overflow-hidden">
+          {/* Sale Badge */}
+          {saleBadge && (
+            <div className="absolute top-3 left-3 z-10">
+              <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+                {saleBadge}
+              </span>
+            </div>
+          )}
 
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-        {onToggleFavorite && (
-          <button
-            onClick={() => onToggleFavorite(product.id)}
-            className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
+          {/* Clickable Image */}
+          <div
+            className="relative w-full h-full cursor-pointer group"
+            onClick={() => setIsImageModalOpen(true)}
           >
-            <Heart
-              className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
-          </button>
-        )}
-        {!product.inStock && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <span className="bg-white px-3 py-1 rounded-full text-sm font-medium">
-              Out of Stock
-            </span>
+
+            {/* Expand Icon Overlay */}
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white bg-opacity-90 rounded-full p-2">
+                <Expand className="h-5 w-5 text-gray-700" />
+              </div>
+            </div>
           </div>
-        )}
-      </div>
+
+          {onToggleFavorite && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onToggleFavorite(product.id)
+              }}
+              className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors z-20"
+            >
+              <Heart
+                className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+              />
+            </button>
+          )}
+          {!product.inStock && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+              <span className="bg-white px-3 py-1 rounded-full text-sm font-medium">
+                Out of Stock
+              </span>
+            </div>
+          )}
+        </div>
       
       <div className="p-4">
         <div className="mb-2">
@@ -112,5 +133,15 @@ export default function ProductCard({
         </button>
       </div>
     </div>
+
+    {/* Full-screen Image Modal */}
+    <ProductImageModal
+      isOpen={isImageModalOpen}
+      onClose={() => setIsImageModalOpen(false)}
+      imageSrc={product.image}
+      imageAlt={product.name}
+      productName={product.name}
+    />
+  </>
   )
 }

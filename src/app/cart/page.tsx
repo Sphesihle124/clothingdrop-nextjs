@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { ShoppingBag, Minus, Plus, Trash2, ArrowLeft } from 'lucide-react'
+import { ShoppingBag, Minus, Plus, Trash2, ArrowLeft, Expand } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { useCart } from '@/contexts/CartContext'
 import { useOrders } from '@/contexts/OrderContext'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import OrderSuccessModal from '@/components/OrderSuccessModal'
+import ProductImageModal from '@/components/ProductImageModal'
 
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart, getCartTotal, getCartItemCount, clearCart } = useCart()
@@ -17,6 +18,8 @@ export default function CartPage() {
   const [isCheckingOut, setIsCheckingOut] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [lastOrderNumber, setLastOrderNumber] = useState('')
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<{src: string, alt: string, name: string} | null>(null)
 
   const subtotal = getCartTotal()
   const deliveryFee = 99.99
@@ -40,6 +43,15 @@ export default function CartPage() {
       setIsCheckingOut(false)
       setShowSuccessModal(true)
     }, 1000)
+  }
+
+  const handleImageClick = (item: any) => {
+    setSelectedImage({
+      src: item.image,
+      alt: item.name,
+      name: item.name
+    })
+    setIsImageModalOpen(true)
   }
 
   return (
@@ -72,13 +84,22 @@ export default function CartPage() {
               {cartItems.map(item => (
                 <div key={item.id} className="bg-white rounded-lg p-4 shadow-sm">
                   <div className="flex items-center space-x-4">
-                    <div className="relative w-20 h-20">
+                    <div
+                      className="relative w-20 h-20 cursor-pointer group"
+                      onClick={() => handleImageClick(item)}
+                    >
                       <Image
                         src={item.image}
                         alt={item.name}
                         fill
-                        className="object-cover rounded-lg"
+                        className="object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
                       />
+                      {/* Expand Icon Overlay */}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center rounded-lg">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white bg-opacity-90 rounded-full p-1">
+                          <Expand className="h-3 w-3 text-gray-700" />
+                        </div>
+                      </div>
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg">{item.name}</h3>
@@ -164,6 +185,17 @@ export default function CartPage() {
         itemCount={itemCount}
         onClose={() => setShowSuccessModal(false)}
       />
+
+      {/* Full-screen Image Modal */}
+      {selectedImage && (
+        <ProductImageModal
+          isOpen={isImageModalOpen}
+          onClose={() => setIsImageModalOpen(false)}
+          imageSrc={selectedImage.src}
+          imageAlt={selectedImage.alt}
+          productName={selectedImage.name}
+        />
+      )}
     </div>
   )
 }

@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ShoppingBag, Filter, Search, ShoppingCart } from 'lucide-react'
+import { ShoppingBag, Filter, Search, ShoppingCart, Expand } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { useCart } from '@/contexts/CartContext'
 import SizeSelectionModal from '@/components/SizeSelectionModal'
+import ProductImageModal from '@/components/ProductImageModal'
 
 // South African Traditional Clothing (prices in South African Rand)
 const products = [
@@ -67,6 +68,8 @@ export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<{src: string, alt: string, name: string} | null>(null)
 
   const { addToCart } = useCart()
 
@@ -85,6 +88,15 @@ export default function ProductsPage() {
     addToCart(product, size, true) // true = navigate to cart
     setIsModalOpen(false)
     setSelectedProduct(null)
+  }
+
+  const handleImageClick = (product: any) => {
+    setSelectedImage({
+      src: product.image,
+      alt: product.name,
+      name: product.name
+    })
+    setIsImageModalOpen(true)
   }
 
   return (
@@ -127,13 +139,22 @@ export default function ProductsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProducts.map(product => (
           <div key={product.id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-            <div className="relative h-64">
+            <div
+              className="relative h-64 cursor-pointer group"
+              onClick={() => handleImageClick(product)}
+            >
               <Image
                 src={product.image}
                 alt={product.name}
                 fill
-                className="object-cover"
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
               />
+              {/* Expand Icon Overlay */}
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white bg-opacity-90 rounded-full p-2">
+                  <Expand className="h-5 w-5 text-gray-700" />
+                </div>
+              </div>
             </div>
             <div className="p-4">
               <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
@@ -177,6 +198,17 @@ export default function ProductsPage() {
         onClose={() => setIsModalOpen(false)}
         onAddToCart={handleSizeSelected}
       />
+
+      {/* Full-screen Image Modal */}
+      {selectedImage && (
+        <ProductImageModal
+          isOpen={isImageModalOpen}
+          onClose={() => setIsImageModalOpen(false)}
+          imageSrc={selectedImage.src}
+          imageAlt={selectedImage.alt}
+          productName={selectedImage.name}
+        />
+      )}
     </div>
   )
 }

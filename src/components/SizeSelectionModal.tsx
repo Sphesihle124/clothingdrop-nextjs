@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { X, ShoppingCart } from 'lucide-react'
+import { X, ShoppingCart, Expand } from 'lucide-react'
 import Image from 'next/image'
 import { formatPrice } from '@/lib/utils'
+import ProductImageModal from './ProductImageModal'
 
 interface Product {
   id: number
@@ -21,14 +22,15 @@ interface SizeSelectionModalProps {
   onAddToCart: (product: Product, size: string) => void
 }
 
-export default function SizeSelectionModal({ 
-  product, 
-  isOpen, 
-  onClose, 
-  onAddToCart 
+export default function SizeSelectionModal({
+  product,
+  isOpen,
+  onClose,
+  onAddToCart
 }: SizeSelectionModalProps) {
   const [selectedSize, setSelectedSize] = useState<string>('')
   const [isAdding, setIsAdding] = useState(false)
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false)
 
   if (!isOpen || !product) return null
 
@@ -51,6 +53,10 @@ export default function SizeSelectionModal({
     onClose()
   }
 
+  const handleImageClick = () => {
+    setIsImageModalOpen(true)
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
@@ -68,13 +74,22 @@ export default function SizeSelectionModal({
         {/* Product Info */}
         <div className="p-6">
           <div className="flex space-x-4 mb-6">
-            <div className="relative w-20 h-20 flex-shrink-0">
+            <div
+              className="relative w-20 h-20 flex-shrink-0 cursor-pointer group"
+              onClick={handleImageClick}
+            >
               <Image
                 src={product.image}
                 alt={product.name}
                 fill
-                className="object-cover rounded-lg"
+                className="object-cover rounded-lg group-hover:scale-105 transition-transform duration-300"
               />
+              {/* Expand Icon Overlay */}
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center rounded-lg">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white bg-opacity-90 rounded-full p-1">
+                  <Expand className="h-3 w-3 text-gray-700" />
+                </div>
+              </div>
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-lg">{product.name}</h3>
@@ -150,6 +165,15 @@ export default function SizeSelectionModal({
           </div>
         </div>
       </div>
+
+      {/* Full-screen Image Modal */}
+      <ProductImageModal
+        isOpen={isImageModalOpen}
+        onClose={() => setIsImageModalOpen(false)}
+        imageSrc={product.image}
+        imageAlt={product.name}
+        productName={product.name}
+      />
     </div>
   )
 }
